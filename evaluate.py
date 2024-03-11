@@ -2,9 +2,8 @@ import torch
 import torchvision.transforms as transforms
 import json
 from torchvision import datasets
-import sys,os
+import sys, os
 import zipfile
-
 
 def evaluate_model(model):
     # Evaluate the model
@@ -15,7 +14,7 @@ def evaluate_model(model):
         'cleaned_data(50_50)-20200420T071507Z-003.zip',
         'cleaned_data(50_50)-20200420T071507Z-004.zip'
     ]
-    dataset_dir = 'dataset/cleaned_data(50_50)'
+    dataset_dir = 'Traditional-Chinese-Handwriting-Dataset/data'
 
     if not os.path.exists(dataset_dir):
         os.makedirs(dataset_dir)
@@ -24,10 +23,11 @@ def evaluate_model(model):
                 # Extract files without overwriting
                 for member in zip_ref.infolist():
                     filename = member.filename
-                    # Create a valid path, including subdirectories
-                    destination_path = os.path.join(dataset_dir, filename)
-                    if not os.path.exists(destination_path):
-                        zip_ref.extract(member, dataset_dir)
+                    # Adjust filename to reflect new structure
+                    adjusted_filename = os.path.join(dataset_dir, filename.split('/', 1)[-1])
+                    if not os.path.exists(os.path.dirname(adjusted_filename)):
+                        os.makedirs(os.path.dirname(adjusted_filename))
+                    zip_ref.extract(member, os.path.dirname(adjusted_filename))
 
     transform = transforms.Compose([
         transforms.ToTensor(),
@@ -35,7 +35,7 @@ def evaluate_model(model):
         transforms.Normalize((0.5,), (0.5,)),
         transforms.Lambda(lambda x: torch.flatten(x))
     ])
-    test_dataset = datasets.ImageFolder(dataset_dir, transform=transform)
+    test_dataset = datasets.ImageFolder(root=dataset_dir, transform=transform)
     test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=32)
 
     # Iterate all batches on the dataset
@@ -44,7 +44,7 @@ def evaluate_model(model):
     num = 0
     for images, labels in test_dataloader:
         outputs = model(images)
-        _, predicted = torch.max(outputs, 1)
+        _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
         num += labels.size(0)
         if sys.argv[2] != 'testing':
