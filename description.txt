@@ -1,0 +1,8 @@
+# Introduction
+
+The databset is for the training of Chinese OCR. We have 4803 different characters in this dataset.
+Each character is in a seperate folder.
+
+# Dataset
+The dataset is a Chinese MNIST like dataset with 4803 classes.
+
