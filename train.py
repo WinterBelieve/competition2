@@ -8,7 +8,7 @@ transform=transforms.Compose([
     transforms.Normalize((0.5,), (0.5,))
 ])
 # load mnist dataset from touchvision
-ds = datasets.MNIST('data', download=True,transform=transform)
+ds = datasets.MNIST('Traditional-Chinese-Handwriting-Dataset/data', download=True,transform=transform)
 
 # get dataloader
 dl = torch.utils.data.DataLoader(ds, batch_size=32)
