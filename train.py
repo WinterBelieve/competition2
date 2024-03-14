@@ -12,18 +12,17 @@ zip_files = [
     'cleaned_data(50_50)-20200420T071507Z-003.zip',
     'cleaned_data(50_50)-20200420T071507Z-004.zip'
 ]
+base_dir = 'Traditional-Chinese-Handwriting-Dataset/data'
+dataset_dir = os.path.join(base_dir, 'cleaned_data(50_50)')
 
-# 解壓縮後資料的根目錄
-root_dir = 'Traditional-Chinese-Handwriting-Dataset/data'
-
-# 資料夾名稱固定為 'cleaned_data(50_50)'
-dataset_dir = os.path.join(root_dir, 'cleaned_data(50_50)')
-
-if not os.path.exists(dataset_dir):
-    os.makedirs(dataset_dir)
-    for zip_file in zip_files:
-        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-            zip_ref.extractall(root_dir)
+for zip_file in zip_files:
+    zip_path = os.path.join(base_dir, zip_file)
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        # 檢查是否已經有相同名字的檔案夾存在
+        if not os.path.exists(dataset_dir):
+            os.makedirs(dataset_dir)
+        # 解壓縮每個檔案，確保不覆蓋已存在的檔案
+        zip_ref.extractall(base_dir)
 
 # 定義轉換
 transform = transforms.Compose([
@@ -39,9 +38,9 @@ dl = torch.utils.data.DataLoader(ds, batch_size=32, shuffle=True)
 
 # 定義簡單模型
 model = torch.nn.Sequential(
-    torch.nn.Linear(784, 128),  # 圖片大小需調整為實際大小
+    torch.nn.Linear(784, 128),  # 注意根據你的實際圖片大小調整
     torch.nn.ReLU(),
-    torch.nn.Linear(128, 10),  # 輸出層的數量應該匹配類別數量
+    torch.nn.Linear(128, 10),  # 輸出層數量應該與你的類別數相匹配
     torch.nn.LogSoftmax(dim=1)
 )
 
