@@ -104,6 +104,6 @@ for ep in range(EPOCHS):
     print(f'Epoch {ep+1}, Loss: {loss.item()}')
 
 # save the model
-torch.save(model.state_dict(), 'handwrite_model.pth')
+torch.save(model.state_dict(), 'model.pth')
 
 print("Model trained and saved successfully.")
