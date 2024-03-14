@@ -1,11 +1,10 @@
 import torch
-from torch import nn
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
-import glob
-from PIL import Image
+import torchvision.transforms as transforms
+from torchvision import datasets
+import torch.utils.data
 import zipfile
 import os
+import numpy as np
 
 # zip files
 zip_files = [
@@ -22,80 +21,60 @@ for zip_file in zip_files:
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         zip_ref.extractall(dataset_dir)
 
-# define a function to get the label from the filename
-def get_label(filename):
-    return filename.split('/')[-1].split('_')[0]
+# define transformations
+transform = transforms.Compose([
+    transforms.Resize((28, 28)),  # resize to 28x28
+    transforms.ToTensor(),
+    transforms.Normalize((0.5,), (0.5,))
+])
 
-# get all the files
-files = glob.glob(f'{dataset_dir}/*.png')
+# read dataset
+full_ds = datasets.ImageFolder(root=dataset_dir, transform=transform)
 
-# map label to index
-worddict = {}
-for f in files:
-    label = get_label(f)
-    if label not in worddict:
-        worddict[label] = len(worddict)
+# split dataset
+train_size = int(0.8 * len(full_ds))
+test_size = len(full_ds) - train_size
+train_ds, test_ds = torch.utils.data.random_split(full_ds, [train_size, test_size])
 
-# define the dataset class
-class HandWrite(Dataset):
-    def __init__(self, files, worddict, transform=None, start=0, end=0.9):
-        self.worddict = worddict
-        files = list(filter(lambda x: get_label(x) in worddict, files))
-        self.files = files[int(len(files) * start):int(len(files) * end)]
-        if transform:
-            self.transform = transforms.Compose([transforms.ToTensor()] + transform)
-        else:
-            self.transform = transforms.Compose([transforms.ToTensor()])
-
-    def __len__(self):
-        return len(self.files)
-
-    def get_image(self, fname):
-        return self.transform(Image.open(fname))
-
-    def get_label(self, fname):
-        return self.worddict[get_label(fname)]
-
-    def __getitem__(self, idx):
-        return self.get_image(self.files[idx]), self.get_label(self.files[idx])
-
-# create train, test, and validation datasets
-batch_size = 32
-ch_traindata = HandWrite(files, worddict, None, 0, 0.8)
-ch_testdata = HandWrite(files, worddict, None, 0.8, 0.9)
-ch_validdata = HandWrite(files, worddict, None, 0.9, 1.0)
-
-# create DataLoader
-ch_trainds = DataLoader(ch_traindata, batch_size=batch_size, num_workers=2, shuffle=True)
-ch_testds = DataLoader(ch_testdata, batch_size=batch_size, num_workers=2, shuffle=False)
-ch_validds = DataLoader(ch_validdata, batch_size=batch_size, num_workers=2, shuffle=False)
+# Get DataLoader
+train_dl = torch.utils.data.DataLoader(train_ds, batch_size=32, shuffle=True)
+test_dl = torch.utils.data.DataLoader(test_ds, batch_size=32, shuffle=False)
 
 # Define the model
 model = torch.nn.Sequential(
     torch.nn.Flatten(),
-    torch.nn.Linear(2352, 256),
+    torch.nn.Linear(2352, 128),
     torch.nn.ReLU(),
-    torch.nn.Linear(256, 10),
+    torch.nn.Linear(128, 10),
     torch.nn.LogSoftmax(dim=1)
 )
 
-# define the loss function and the optimizer
-loss_fn = nn.NLLLoss()
+# 定義loss funtion和optimizer
+loss_fn = torch.nn.NLLLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-# train the model
+# Train the model
 EPOCHS = 10
 for ep in range(EPOCHS):
     model.train()
-    for images, labels in ch_trainds:
-        optimizer.zero_grad()
+    tot_loss = 0
+    tot_success = 0
+    count = 0
+    for images, labels in train_dl:
+        images = images.view(images.shape[0], -1)  # flatten the images
         outputs = model(images)
         loss = loss_fn(outputs, labels)
+        success = (torch.argmax(outputs, dim=1) == labels).sum().item()
+
+
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-    print(f'Epoch {ep+1}, Loss: {loss.item()}')
 
-# save the model
-torch.save(model.state_dict(), 'model.pth')
+        tot_loss += loss.item()
+        tot_success += success
+        count += len(images)
+    print(f'Epoch {ep}, Loss: {tot_loss / count}, Accuracy: {tot_success / count * 100}%')
 
-print("Model trained and saved successfully.")
+# Evaluate the model
+torch.save(model, 'model.pth')
