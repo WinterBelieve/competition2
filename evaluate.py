@@ -8,13 +8,15 @@ import zipfile
 def evaluate_model(model):
     # Evaluate the model
     # Load test dataset
+
+    dataset_dir = 'Traditional-Chinese-Handwriting-Dataset/data'
+
     zip_files = [
         'cleaned_data(50_50)-20200420T071507Z-001.zip',
         'cleaned_data(50_50)-20200420T071507Z-002.zip',
         'cleaned_data(50_50)-20200420T071507Z-003.zip',
         'cleaned_data(50_50)-20200420T071507Z-004.zip'
     ]
-    dataset_dir = 'Traditional-Chinese-Handwriting-Dataset/data'
 
     if not os.path.exists(dataset_dir):
         os.makedirs(dataset_dir)
