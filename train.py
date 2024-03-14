@@ -51,7 +51,7 @@ model = torch.nn.Sequential(
 
 # 定義loss funtion和optimizer
 loss_fn = torch.nn.NLLLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 # Train the model
 EPOCHS = 10
@@ -65,6 +65,7 @@ for ep in range(EPOCHS):
         outputs = model(images)
         loss = loss_fn(outputs, labels)
         success = (torch.argmax(outputs, dim=1) == labels).sum().item()
+
 
         optimizer.zero_grad()
         loss.backward()
