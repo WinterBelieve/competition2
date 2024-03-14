@@ -78,14 +78,6 @@ model = torch.nn.Sequential(
     torch.nn.Linear(256, 10),
     torch.nn.LogSoftmax(dim=1)
 )
-# define the model
-model = nn.Sequential(
-    nn.Flatten(),
-    nn.Linear(3 * 28 * 28, 128),  # 假设图片是28x28像素的彩色图片
-    nn.ReLU(),
-    nn.Linear(128, len(worddict)),  # 输出层的大小匹配类别的数量
-    nn.LogSoftmax(dim=1)
-)
 
 # define the loss function and the optimizer
 loss_fn = nn.NLLLoss()
