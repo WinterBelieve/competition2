@@ -43,7 +43,7 @@ test_dl = torch.utils.data.DataLoader(test_ds, batch_size=32, shuffle=False)
 # Define the model
 model = torch.nn.Sequential(
     torch.nn.Flatten(),
-    torch.nn.Linear(2352, 128),
+    torch.nn.Linear(784, 128),
     torch.nn.ReLU(),
     torch.nn.Linear(128, 10),
     torch.nn.LogSoftmax(dim=1)
