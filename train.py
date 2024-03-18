@@ -15,7 +15,7 @@ def get_label(filename):
 class HandWrite(Dataset):
     def __init__(self, zip_files, worddict, transform=None, start=0, end=0.8):
         self.worddict = worddict
-        self.transform = transforms.Compose([transforms.ToTensor()] + (transform if transform else []))
+        self.transform = transform  # 直接使用 transform 參數
         self.files = []
         self.labels = []
 
@@ -27,10 +27,16 @@ class HandWrite(Dataset):
                         self.files.append((zip_filename, file))
                         self.labels.append(worddict[get_label(file)])
                         
-        # 根據比例分割數據集
+        # 根據比例切分數據集
         dataset_size = len(self.files)
-        self.files = self.files[int(dataset_size*start):int(dataset_size*end)]
-        self.labels = self.labels[int(dataset_size*start):int(dataset_size*end)]
+        split_index = int(dataset_size * end)
+        if start > 0:  # 如果指定了start參數，則根據start和end參數分割數據集
+            start_index = int(dataset_size * start)
+            self.files = self.files[start_index:split_index]
+            self.labels = self.labels[start_index:split_index]
+        else:  # 否則只有根據end參數分割數據集
+            self.files = self.files[:split_index]
+            self.labels = self.labels[:split_index]
 
     def __len__(self):
         return len(self.files)
@@ -42,7 +48,8 @@ class HandWrite(Dataset):
         with zipfile.ZipFile(zip_filename, 'r') as z:
             with z.open(filename) as imagefile:
                 image = Image.open(imagefile).convert('RGB')
-        image = self.transform(image)
+        if self.transform:
+            image = self.transform(image)
         return image, label
 
 # 定義圖像轉換
