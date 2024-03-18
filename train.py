@@ -7,15 +7,14 @@ from PIL import Image
 import zipfile
 import os
 
-# 從檔案名提取標籤的函數
+# 定義從檔案名提取標籤的函數
 def get_label(filename):
     return filename.split('/')[-1].split('_')[0]
 
-# 自定義數據集類
 class HandWrite(Dataset):
-    def __init__(self, files, worddict, transform=None):
-        self.files = files
+    def __init__(self, files, worddict, transform=None, start=0, end=0.8):
         self.worddict = worddict
+        self.files = files[int(len(files) * start):int(len(files) * end)]
         self.transform = transform
 
     def __len__(self):
@@ -23,8 +22,8 @@ class HandWrite(Dataset):
 
     def __getitem__(self, idx):
         img_path = self.files[idx]
-        image = Image.open(img_path).convert('RGB')  # 確保為RGB格式
-        label = self.worddict[get_label(img_path)]  # 從檔案名提取標籤並轉換為索引
+        image = Image.open(img_path).convert('RGB')
+        label = self.worddict[get_label(img_path)]
         if self.transform:
             image = self.transform(image)
         return image, label
@@ -39,47 +38,37 @@ zip_files = [
 base_dir = 'Traditional-Chinese-Handwriting-Dataset/data'
 dataset_dir = os.path.join(base_dir, 'cleaned_data(50_50)')
 
-# 確保資料集目錄存在
-if not os.path.exists(dataset_dir):
-    os.makedirs(dataset_dir)
-
-# 解壓所有.zip文件
 for zip_file in zip_files:
     zip_path = os.path.join(base_dir, zip_file)
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         zip_ref.extractall(dataset_dir)
 
 # 獲取所有圖像文件路徑
-files = glob.glob(f'{dataset_dir}/**/*.png', recursive=True)
+files = glob.glob(f'{dataset_dir}/*.png')
 
 # 創建標籤字典
-worddict = {label: idx for idx, label in enumerate(sorted(set([get_label(f) for f in files])))}
+worddict = {get_label(file): idx for idx, file in enumerate(sorted(set(files)))}
 
-# 定義轉換
+# 定義圖像轉換操作
 transform = transforms.Compose([
-    transforms.Resize((64, 64)),  # 將圖片縮放為 64x64
+    transforms.Resize((64, 64)),  # Resize images to 64x64
     transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    transforms.Normalize((0.5,), (0.5,))
 ])
 
-# 根據訓練集和測試集的切割創建自定義數據集實例
-train_data = HandWrite(files, worddict, transform)
-test_data = HandWrite(files, worddict, transform)
-
-# 分割訓練集和測試集
-train_size = int(0.8 * len(train_data))
-test_size = len(train_data) - train_size
-train_dataset, test_dataset = torch.utils.data.random_split(train_data, [train_size, test_size])
+# 創建數據集實例
+train_data = HandWrite(files, worddict, transform, end=0.8)
+test_data = HandWrite(files, worddict, transform, start=0.8)
 
 # 創建 DataLoader
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=32)
+train_loader = DataLoader(train_data, batch_size=32, shuffle=True)
+test_loader = DataLoader(test_data, batch_size=32, shuffle=False)
 
 # 定義模型架構
 num_classes = len(worddict)
 model = nn.Sequential(
     nn.Flatten(),
-    nn.Linear(64 * 64 * 3, 1024),  # 假定圖像為64x64的彩色圖像
+    nn.Linear(64 * 64 * 3, 1024),
     nn.ReLU(),
     nn.Linear(1024, num_classes),
     nn.LogSoftmax(dim=1)
@@ -97,20 +86,18 @@ for epoch in range(EPOCHS):
     correct = 0
     total = 0
     for images, labels in train_loader:
+        optimizer.zero_grad()
         outputs = model(images)
         loss = loss_fn(outputs, labels)
-        
-        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        
+
         total_loss += loss.item()
         _, predicted = torch.max(outputs, 1)
         correct += (predicted == labels).sum().item()
         total += labels.size(0)
-    
-    accuracy = 100 * correct / total
-    print(f'Epoch {epoch+1}, Loss: {total_loss / total}, Accuracy: {accuracy}%')
+
+    print(f'Epoch {epoch+1}, Loss: {total_loss / total}, Accuracy: {100 * correct / total}%')
 
 # 保存模型
 torch.save(model.state_dict(), 'handwrite_model.pth')
