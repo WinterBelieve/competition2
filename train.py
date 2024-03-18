@@ -9,38 +9,40 @@ import io
 
 # 從檔案名提取標籤的函數
 def get_label(filename):
-    return filename.split('_')[0]
+    return filename.split('/')[-1].split('_')[0]
 
 # 自定義數據集類
 class HandWrite(Dataset):
-    def __init__(self, zip_files, worddict, transform=None, start_ratio=0, end_ratio=0.8):
+    def __init__(self, zip_files, worddict, transform=None, start=0, end=0.8):
         self.worddict = worddict
-        self.transform = transform
-        self.image_info = []
-        # 從每個ZIP文件中讀取PNG文件
+        self.transform = transforms.Compose([transforms.ToTensor()] + (transform if transform else []))
+        self.files = []
+        self.labels = []
+
+        # 從每個zip文件中讀取圖像
         for zip_filename in zip_files:
-            with zipfile.ZipFile(zip_filename, 'r') as zip_ref:
-                # 這裡假設ZIP文件中的每個文件都是圖片文件
-                name_list = zip_ref.namelist()
-                # 根據比例分割數據
-                start_idx = int(len(name_list) * start_ratio)
-                end_idx = int(len(name_list) * end_ratio)
-                for filename in name_list[start_idx:end_idx]:
-                    if filename.endswith('.png'):
-                        self.image_info.append((zip_ref, filename))
+            with zipfile.ZipFile(zip_filename, 'r') as z:
+                for file in z.namelist():
+                    if file.endswith('.png') and get_label(file) in worddict:
+                        self.files.append((zip_filename, file))
+                        self.labels.append(worddict[get_label(file)])
+                        
+        # 根據比例分割數據集
+        dataset_size = len(self.files)
+        self.files = self.files[int(dataset_size*start):int(dataset_size*end)]
+        self.labels = self.labels[int(dataset_size*start):int(dataset_size*end)]
 
     def __len__(self):
-        return len(self.image_info)
+        return len(self.files)
 
     def __getitem__(self, idx):
-        zip_ref, filename = self.image_info[idx]
-        label_name = get_label(os.path.basename(filename))
-        label = self.worddict[label_name]
-        # 從zip文件中直接讀取圖片
-        with zip_ref.open(filename) as image_file:
-            image = Image.open(image_file).convert('RGB')
-        if self.transform:
-            image = self.transform(image)
+        zip_filename, filename = self.files[idx]
+        label = self.labels[idx]
+        # 從zip文件中讀取圖像
+        with zipfile.ZipFile(zip_filename, 'r') as z:
+            with z.open(filename) as imagefile:
+                image = Image.open(imagefile).convert('RGB')
+        image = self.transform(image)
         return image, label
 
 # 定義圖像轉換
@@ -62,8 +64,8 @@ worddict = {label: idx for idx, label in enumerate(sorted(set(all_labels)))}
 BATCH_SIZE = 32
 
 # 創建訓練和測試數據集
-train_data = HandWrite(zip_files, worddict, transform=transform, end_ratio=0.8)
-test_data = HandWrite(zip_files, worddict, transform=transform, start_ratio=0.8)
+train_data = HandWrite(zip_files, worddict, transform=transform, start=0, end=0.8) # 使用前80%的數據作為訓練數據
+test_data = HandWrite(zip_files, worddict, transform=transform, start=0.8, end=1.0) # 使用後20%的數據作為測試數據
 
 # 創建 DataLoader
 train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
