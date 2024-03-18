@@ -22,7 +22,7 @@ for zip_file in zip_files:
     with zipfile.ZipFile(zip_path, 'r') as zip_ref:
         zip_ref.extractall(dataset_dir)
 
-# 定義從檔案名提取標籤的函數
+# 從檔案名提取標籤的函數
 def get_label(filename):
     return filename.split('/')[-1].split('_')[0]
 
@@ -48,17 +48,17 @@ class CustomDataset(Dataset):
 # 獲取所有圖像文件路徑
 files = glob.glob(f'{dataset_dir}/**/*.png', recursive=True)
 
-# 定義轉換
+# 定義圖像轉換操作
 transform = transforms.Compose([
     transforms.Resize((28, 28)),
     transforms.ToTensor(),
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
-# 創建自定義數據集
+# 創建自定義數據集實例
 dataset = CustomDataset(files, transform=transform)
 
-# 分割數據集
+# 分割數據集為訓練集和測試集
 train_size = int(0.8 * len(dataset))
 test_size = len(dataset) - train_size
 train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
@@ -67,11 +67,11 @@ train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=32)
 
-# 定義模型
+# 定義模型架構
 num_classes = len(dataset.label_set)
 model = nn.Sequential(
     nn.Flatten(),
-    nn.Linear(3 * 28 * 28, 128),  # 假設為彩色圖像
+    nn.Linear(3 * 28 * 28, 128),  # 假定圖像為28x28的彩色圖像
     nn.ReLU(),
     nn.Linear(128, num_classes),
     nn.LogSoftmax(dim=1)
@@ -84,29 +84,38 @@ optimizer = optim.Adam(model.parameters(), lr=0.001)
 # 訓練模型
 EPOCHS = 10
 for epoch in range(EPOCHS):
-    model.train()  # 設置模型為訓練模式
+    model.train()
+    total_loss = 0
+    correct = 0
+    total = 0
     for images, labels in train_loader:
         outputs = model(images)
         loss = loss_fn(outputs, labels)
-
+        
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-
-    print(f'Epoch {epoch+1}, Loss: {loss.item()}')
+        
+        total_loss += loss.item()
+        _, predicted = torch.max(outputs, 1)
+        correct += (predicted == labels).sum().item()
+        total += labels.size(0)
+    
+    accuracy = 100 * correct / total
+    print(f'Epoch {epoch+1}, Loss: {total_loss / total}, Accuracy: {accuracy}%')
 
 # 評估模型
-model.eval()  # 設置模型為評估模式
-correct_predictions = 0
-total_predictions = 0
+model.eval()
+correct = 0
+total = 0
 with torch.no_grad():
     for images, labels in test_loader:
         outputs = model(images)
         _, predicted = torch.max(outputs, 1)
-        correct_predictions += (predicted == labels).sum().item()
-        total_predictions += labels.size(0)
+        correct += (predicted == labels).sum().item()
+        total += labels.size(0)
 
-print(f'Test Accuracy: {correct_predictions / total_predictions * 100}%')
+print(f'Test Accuracy: {correct / total * 100}%')
 
 # 保存模型
 torch.save(model.state_dict(), 'model.pth')
