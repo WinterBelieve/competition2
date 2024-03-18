@@ -87,7 +87,7 @@ model = nn.Sequential(
 
 # 定義損失函數和優化器
 loss_fn = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=0.01)
 
 # 訓練模型
 EPOCHS = 10
