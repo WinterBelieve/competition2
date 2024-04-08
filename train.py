@@ -57,3 +57,4 @@ for epoch in range(EPOCHS):
 
 # 評估模型（可選）
 # 這裡可以添加測試集上的評估代碼
+torch.save(model.state_dict(), 'handwrite_model.pth')
