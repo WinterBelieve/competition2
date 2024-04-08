@@ -1,85 +1,27 @@
 import torch
+from torchvision import transforms, datasets
+from torch.utils.data import DataLoader
 from torch import nn, optim
-from torch.utils.data import Dataset, DataLoader
-from torchvision import transforms
-from PIL import Image
-import zipfile
-import os
-import io
 
-# 從檔案名提取標籤的函數
-def get_label(filename):
-    return filename.split('/')[-1].split('_')[0]
-
-# 自定義數據集類
-class HandWrite(Dataset):
-    def __init__(self, zip_files, worddict, transform=None, start=0, end=0.8):
-        self.worddict = worddict
-        self.transform = transform  # 直接使用 transform 參數
-        self.files = []
-        self.labels = []
-
-        # 從每個zip文件中讀取圖像
-        for zip_filename in zip_files:
-            with zipfile.ZipFile(zip_filename, 'r') as z:
-                for file in z.namelist():
-                    if file.endswith('.png') and get_label(file) in worddict:
-                        self.files.append((zip_filename, file))
-                        self.labels.append(worddict[get_label(file)])
-                        
-        # 根據比例切分數據集
-        dataset_size = len(self.files)
-        split_index = int(dataset_size * end)
-        if start > 0:  # 如果指定了start參數，則根據start和end參數分割數據集
-            start_index = int(dataset_size * start)
-            self.files = self.files[start_index:split_index]
-            self.labels = self.labels[start_index:split_index]
-        else:  # 否則只有根據end參數分割數據集
-            self.files = self.files[:split_index]
-            self.labels = self.labels[:split_index]
-
-    def __len__(self):
-        return len(self.files)
-
-    def __getitem__(self, idx):
-        zip_filename, filename = self.files[idx]
-        label = self.labels[idx]
-        # 從zip文件中讀取圖像
-        with zipfile.ZipFile(zip_filename, 'r') as z:
-            with z.open(filename) as imagefile:
-                image = Image.open(imagefile).convert('RGB')
-        if self.transform:
-            image = self.transform(image)
-        return image, label
-
-# 定義圖像轉換
+# 圖像轉換
 transform = transforms.Compose([
-    transforms.Resize((64, 64)),
+    transforms.Resize((64, 64)),  # 將圖像大小調整為 64x64
     transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # 標準化
 ])
 
-# 獲取 zip 文件的路徑
-base_dir = 'Traditional-Chinese-Handwriting-Dataset/data'
-zip_files = [os.path.join(base_dir, f'cleaned_data(50_50)-20200420T071507Z-00{i}.zip') for i in range(1, 5)]
+# 數據加載
+data_dir = 'Traditional-Chinese-Handwriting-Dataset/data/cleaned_data(50_50)'
+dataset = datasets.ImageFolder(root=data_dir, transform=transform)
+train_size = int(0.8 * len(dataset))
+test_size = len(dataset) - train_size
+train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
 
-# 創建標籤字典
-all_labels = [get_label(filename) for zip_filename in zip_files for filename in zipfile.ZipFile(zip_filename, 'r').namelist() if filename.endswith('.png')]
-worddict = {label: idx for idx, label in enumerate(sorted(set(all_labels)))}
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=32)
 
-# 設定批次大小
-BATCH_SIZE = 32
-
-# 創建訓練和測試數據集
-train_data = HandWrite(zip_files, worddict, transform=transform, start=0, end=0.8) # 使用前80%的數據作為訓練數據
-test_data = HandWrite(zip_files, worddict, transform=transform, start=0.8, end=1.0) # 使用後20%的數據作為測試數據
-
-# 創建 DataLoader
-train_loader = DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
-test_loader = DataLoader(test_data, batch_size=BATCH_SIZE)
-
-# 定義模型架構
-num_classes = len(worddict)
+# 模型架構
+num_classes = len(dataset.classes)  # 根據數據集類別數量設置
 model = nn.Sequential(
     nn.Flatten(),
     nn.Linear(64 * 64 * 3, 1024),
@@ -88,7 +30,7 @@ model = nn.Sequential(
     nn.LogSoftmax(dim=1)
 )
 
-# 定義損失函數和優化器
+# 損失函數和優化器
 loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
@@ -105,12 +47,13 @@ for epoch in range(EPOCHS):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        
         total_loss += loss.item()
-        _, predicted = torch.max(outputs, 1)
-        correct += (predicted == labels).sum().item()
+        _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
-    accuracy = 100 * correct / total
-    print(f'Epoch {epoch+1}, Loss: {total_loss / total}, Accuracy: {accuracy}%')
+        correct += (predicted == labels).sum().item()
+    
+    print(f'Epoch {epoch+1}, Loss: {total_loss / total}, Accuracy: {100 * correct / total}%')
 
-# 保存模型
-torch.save(model.state_dict(), 'handwrite_model.pth')
+# 評估模型（可選）
+# 這裡可以添加測試集上的評估代碼
