@@ -6,9 +6,11 @@ import json
 import sys
 import os
 
-# 定義圖像轉換
+# 圖像轉換
 transform = transforms.Compose([
+    transforms.Resize((64, 64)),  # 將圖像大小調整為 64x64
     transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # 標準化
 ])
 
 # 載入測試數據集
@@ -30,7 +32,8 @@ model = nn.Sequential(
 )
 
 # 加載模型參數
-model_path = sys.argv[1]  # 模型路徑作為命令行第一個參數傳入
+model_path = '/home/jovyan/competition2/handwrite_model.pth'
+# model_path = sys.argv[1]  # 模型路徑作為命令行第一個參數傳入
 model = torch.jit.load(model_path)
 
 # 模型評估

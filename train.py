@@ -17,8 +17,8 @@ train_size = int(0.8 * len(dataset))
 test_size = len(dataset) - train_size
 train_dataset, test_dataset = torch.utils.data.random_split(dataset, [train_size, test_size])
 
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=32)
+train_loader = DataLoader(train_dataset, batch_size=1024, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=1024)
 
 # 模型架構
 num_classes = len(dataset.classes)  # 根據數據集類別數量設置
@@ -35,7 +35,7 @@ loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
 # 訓練模型
-EPOCHS = 10
+EPOCHS = 1
 for epoch in range(EPOCHS):
     model.train()
     total_loss = 0
