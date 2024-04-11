@@ -32,8 +32,8 @@ model = nn.Sequential(
 )
 
 # 加載模型參數
-model_path = '/home/jovyan/competition2/handwrite_model.pth'
-# model_path = sys.argv[1]  # 模型路徑作為命令行第一個參數傳入
+# model_path = '/home/jovyan/competition2/handwrite_model.pth'
+model_path = sys.argv[1]  # 模型路徑作為命令行第一個參數傳入
 model = torch.jit.load(model_path)
 
 # 模型評估
