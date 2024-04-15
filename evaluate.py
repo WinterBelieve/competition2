@@ -22,10 +22,9 @@ _, test_dataset = torch.utils.data.random_split(dataset, [int(len(dataset) * 0.8
 test_loader = DataLoader(test_dataset, batch_size=128)
 
 # model path
-model_path = 'handwrite_model.pth'
-if len(sys.argv) > 1:
-    model_path = sys.argv[1]
 
+
+model_path = sys.argv[1]
 model = torch.jit.load(model_path).to(device)
 
 # model evaluation
