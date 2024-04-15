@@ -5,9 +5,6 @@ from torch import nn
 import json
 import sys
 
-# set device
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
 # transform
 transform = transforms.Compose([
     transforms.Resize((64, 64)),  # resize
@@ -25,7 +22,7 @@ test_loader = DataLoader(test_dataset, batch_size=128)
 
 
 model_path = sys.argv[1]
-model = torch.jit.load(model_path).to(device)
+model = torch.jit.load(model_path)
 
 # model evaluation
 def evaluate_model(model, loader):
