@@ -4,29 +4,26 @@ from torch.utils.data import DataLoader
 from torch import nn
 import json
 import sys
+import os
 
-# set device
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-# transform
+# 圖像轉換
 transform = transforms.Compose([
-    transforms.Resize((64, 64)),  # resize
+    transforms.Resize((64, 64)),  # 將圖像大小調整為 64x64
     transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # normalize
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))  # 標準化
 ])
 
-# data loader
+# 載入測試數據集
 data_dir = 'Traditional-Chinese-Handwriting-Dataset/data/cleaned_data(50_50)'
-dataset = datasets.ImageFolder(root=data_dir, transform=transform)
-_, test_dataset = torch.utils.data.random_split(dataset, [int(len(dataset) * 0.8), len(dataset) - int(len(dataset) * 0.8)])
-test_loader = DataLoader(test_dataset, batch_size=128)
+test_data = datasets.ImageFolder(root=data_dir, transform=transform)
+num_classes = len(test_data.classes)  # 假設模型和數據集已經準備好
+# 假設測試數據集占總數據集的後20%
+_, test_data = torch.utils.data.random_split(test_data, [int(len(test_data)*0.8), len(test_data)-int(len(test_data)*0.8)])
 
-# model path
-model_path = 'handwrite_model.pth'
-if len(sys.argv) > 1:
-    model_path = sys.argv[1]
+test_loader = DataLoader(test_data, batch_size=128, shuffle=True)
 
-model = torch.jit.load(model_path).to(device)
+model_path = sys.argv[1]  # model path
+model = torch.jit.load(model_path)
 
 # model evaluation
 def evaluate_model(model, test_loader):
