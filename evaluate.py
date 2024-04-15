@@ -42,7 +42,7 @@ def evaluate_model(model, loader):
             total += labels.size(0)
     
     accuracy = 100 * correct / total
-    print(json.dumps({"total": total, "correct": correct, "accurancy": accuracy}))
+    print(json.dumps({"total": total, "correct": correct, "accuracy": accuracy}))
 
 # evaluate model
 evaluate_model(model, test_loader)
