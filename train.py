@@ -3,9 +3,6 @@ from torchvision import transforms, datasets
 from torch.utils.data import DataLoader
 from torch import nn, optim
 
-# set device
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
 # transform
 transform = transforms.Compose([
     transforms.Resize((64, 64)),  # resize
@@ -27,32 +24,32 @@ test_loader = DataLoader(test_dataset, batch_size=128)
 class MyModel(nn.Module):
     def __init__(self, num_classes):
         super(MyModel, self).__init__()
-        self.conv_layers = nn.Sequential(
+        self.features = nn.Sequential(
             nn.Conv2d(3, 32, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2),
+            nn.MaxPool2d(kernel_size=2, stride=2),
             nn.Conv2d(64, 128, kernel_size=3, stride=1, padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(2, 2)
+            nn.MaxPool2d(kernel_size=2, stride=2)
         )
-        self.fc_layers = nn.Sequential(
+        self.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(128 * 8 * 8, 128),
+            nn.Linear(128 * 8 * 8, 512),
             nn.ReLU(),
-            nn.Linear(128, num_classes),
+            nn.Linear(512, num_classes),
             nn.LogSoftmax(dim=1)
         )
 
     def forward(self, x):
-        x = self.conv_layers(x)
-        x = self.fc_layers(x)
+        x = self.features(x)
+        x = self.classifier(x)
         return x
 
 num_classes = len(dataset.classes)
-model = MyModel(num_classes).to(device)
+model = MyModel(num_classes)
 
 # loss function and optimizer
 loss_fn = nn.CrossEntropyLoss()
@@ -66,7 +63,6 @@ for epoch in range(EPOCHS):
     correct = 0
     total = 0
     for images, labels in train_loader:
-        images, labels = images.to(device), labels.to(device)
         outputs = model(images)
         loss = loss_fn(outputs, labels)
         optimizer.zero_grad()
@@ -79,7 +75,6 @@ for epoch in range(EPOCHS):
         correct += (predicted == labels).sum().item()
 
     print(f'Epoch {epoch+1}, Loss: {total_loss / total}, Accuracy: {100 * correct / total}%')
-
 
 model_scripted = torch.jit.script(model)  # script
 model_scripted.save('handwrite_model.pth')  # save model
