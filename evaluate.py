@@ -19,10 +19,8 @@ _, test_dataset = torch.utils.data.random_split(dataset, [int(len(dataset) * 0.8
 test_loader = DataLoader(test_dataset, batch_size=128)
 
 # model path
-
-
 model_path = sys.argv[1]
-model = torch.jit.load(model_path)
+model = torch.jit.load(model_path).to('cpu')
 
 # model evaluation
 def evaluate_model(model, loader):
