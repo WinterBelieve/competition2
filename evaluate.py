@@ -18,7 +18,7 @@ transform = transforms.Compose([
 # data loader
 data_dir = 'Traditional-Chinese-Handwriting-Dataset/data/cleaned_data(50_50)'
 dataset = datasets.ImageFolder(root=data_dir, transform=transform)
-_, test_dataset = torch.utils.data.random_split(dataset, [int(len(dataset) * 0.8), len(dataset) - int(len(dataset) * 0.8)])
+_, test_dataset = torch.utils.data.random_split(dataset, [int(len(dataset) * 0.99), len(dataset) - int(len(dataset) * 0.99)])
 test_loader = DataLoader(test_dataset, batch_size=128)
 
 # model_path = 'handwrite_model.pth'
