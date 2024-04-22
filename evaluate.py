@@ -57,7 +57,7 @@ def custom_collate_fn(batch):
 
 _, test_dataset = torch.utils.data.random_split(dataset, [int(len(dataset) * 0.99), len(dataset) - int(len(dataset) * 0.99)])
 test_loader = DataLoader(test_dataset, batch_size=128)
-classmap = json.loads(open('test.txt').read())
+classmap = json.loads(open('class_to_idx.txt').read())
 
 # model_path = '/home/jovyan/competition2/resnet_ChMNIST.pth'
 # model_path = 'handwrite_model.pth'
