@@ -58,12 +58,13 @@ def custom_collate_fn(batch):
 _, test_dataset = torch.utils.data.random_split(dataset, [int(len(dataset) * 0.99), len(dataset) - int(len(dataset) * 0.99)])
 test_loader = DataLoader(test_dataset, batch_size=128)
 classmap = json.loads(open('test.txt').read())
-model_path = '/home/jovyan/competition2/resnet_ChMNIST.pth'
+
+# model_path = '/home/jovyan/competition2/resnet_ChMNIST.pth'
 # model_path = 'handwrite_model.pth'
 
 testds = SimpleDataset('newchinese', classmap,transform=transform)
 test_loader = DataLoader(testds, batch_size=128, collate_fn=custom_collate_fn)
-# model_path = sys.argv[1]
+model_path = sys.argv[1]
 model = torch.jit.load(model_path).to(device)
 
 # Function to evaluate the model and identify misclassifications
