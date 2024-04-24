@@ -65,7 +65,7 @@ classmap = json.loads(open('class_to_idx.txt').read())
 testds = SimpleDataset('newchinese', classmap,transform=transform)
 test_loader = DataLoader(testds, batch_size=128, collate_fn=custom_collate_fn)
 model_path = sys.argv[1]
-model = torch.jit.load(model_path, map_location=torch.device('cpu'))
+model = torch.jit.load(model_path).to(device)
 
 # Function to evaluate the model and identify misclassifications
 def evaluate_model(model, loader):
