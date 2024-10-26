@@ -34,12 +34,12 @@ Traditional-Chinese-Handwriting-Dataset/
 └── data/
     └── cleaned_data(50_50)/
         ├── 丁/
-        │   ├── img1.png
-        │   ├── img2.png
+        │   ├── 丁_0.png
+        │   ├── 丁_1.png
         │   └── ...
         ├── 七/
-        │   ├── img1.png
-        │   ├── img2.png
+        │   ├── 七_0.png
+        │   ├── 七_1.png
         │   └── ...
         └── ... (4803 folders in total)
 ```
