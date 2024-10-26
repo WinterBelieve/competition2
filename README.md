@@ -21,7 +21,7 @@ Handwritten Chinese character recognition is a challenging task due to the large
 
 The dataset is available in this repository under the directory:
 
-Traditional-Chinese-Handwriting-Dataset/data/cleaned\_data(50\_50)/
+`Traditional-Chinese-Handwriting-Dataset/data/cleaned\_data(50\_50)/`
 
 **Dataset Structure**
 
@@ -29,29 +29,18 @@ The dataset is organized into folders, each representing a single Chinese charac
 
 Example directory structure:
 
-Traditional-Chinese-Handwriting-Dataset/
-
-└── data/
-
-`    `└── cleaned\_data(50\_50)/
-
-`        `├── 丁/
-
-`        `│   ├── img1.png
-
-`        `│   ├── img2.png
-
-`        `│   └── ...
-
-`        `├── 七/
-
-`        `│   ├── img1.png
-
-`        `│   ├── img2.png
-
-`        `│   └── ...
-
-`        `└── ... (4803 folders in total)
+` Traditional-Chinese-Handwriting-Dataset/ `
+` └── data/`
+`    └── cleaned_data(50_50)/`
+`        ├── 丁/`
+`        │   ├── img1.png`
+`        │   ├── img2.png`
+`        │   └── ...`
+`        ├── 七/`
+`        │   ├── img1.png`
+`        │   ├── img2.png`
+`        │   └── ...`
+`        └── ... (4803 folders in total)`
 
 - **Total Characters**: 4,803
 - **Image Format**: PNG
@@ -60,10 +49,9 @@ Traditional-Chinese-Handwriting-Dataset/
 **Installation Guide**
 
 1. **Clone the Repository**
+` git clone https://github.com/WinterBelieve/competition2.git `
+` cd competition2 `
 
-git clone https://github.com/WinterBelieve/competition2.git
-
-cd competition2
 
 1. **Ensure Required Libraries Are Installed**
 
@@ -79,7 +67,7 @@ The dataset should already be in place within the repository. If not, ensure tha
 
 To train the model, simply run:
 
-python train.py
+` python train.py `
 
 - The train.py script will begin training the CNN model using the dataset provided.
 - You can modify training parameters like epochs, batch size, or learning rate directly in the train.py script if needed.
@@ -88,36 +76,25 @@ python train.py
 
 To evaluate the model's performance:
 
-python test.py
+` python test.py `
 
 - The test.py script will run the trained model on the test dataset and output the accuracy.
 - Ensure that the trained model weights are saved and loaded correctly in the script.
 
 **Project Structure**
 
-competition2/
-
-├── train.py                                # Training script
-
-├── test.py                                 # Testing/Evaluation script
-
-├── model.py                                # Model definition
-
-├── utils.py                                # Utility functions (if any)
-
-├── Traditional-Chinese-Handwriting-Dataset/
-
-│   └── data/
-
-│       └── cleaned\_data(50\_50)/            # Dataset directory
-
-│           ├── 丁/
-
-│           ├── 七/
-
-│           └── ... (4803 character folders)
-
-└── README.md                               # Project README file
+` competition2/ `
+` ├── train.py                                # Training script`
+`├── test.py                                 # Testing/Evaluation script`
+`├── model.py                                # Model definition`
+`├── utils.py                                # Utility functions (if any)`
+`├── Traditional-Chinese-Handwriting-Dataset/`
+`│   └── data/`
+`│       └── cleaned\_data(50\_50)/            # Dataset directory`
+`│           ├── 丁/`
+`│           ├── 七/`
+`│           └── ... (4803 character folders)`
+`└── README.md                               # Project README file`
 
 - **train.py**: Script to train the CNN model.
 - **test.py**: Script to test the trained model.
