@@ -28,6 +28,7 @@ Traditional-Chinese-Handwriting-Dataset/data/cleaned\_data(50\_50)/
 The dataset is organized into folders, each representing a single Chinese character. Each folder contains images of handwritten samples of that character.
 
 Example directory structure:
+
 ```
 Traditional-Chinese-Handwriting-Dataset/ 
 └── data/
@@ -42,6 +43,7 @@ Traditional-Chinese-Handwriting-Dataset/
         │   └── ...
         └── ... (4803 folders in total)
 ```
+
 - **Total Characters**: 4,803
 - **Image Format**: PNG
 - **Image Size**: 64x64 pixels (can be adjusted as needed)
@@ -82,8 +84,9 @@ To evaluate the model's performance:
 - Ensure that the trained model weights are saved and loaded correctly in the script.
 
 **Project Structure**
-```
 competition2/
+
+```
 ├── train.py                                # Training script
 ├── test.py                                 # Testing/Evaluation script
 ├── model.py                                # Model definition
