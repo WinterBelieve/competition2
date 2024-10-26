@@ -84,9 +84,9 @@ To evaluate the model's performance:
 - Ensure that the trained model weights are saved and loaded correctly in the script.
 
 **Project Structure**
-competition2/
 
 ```
+competition2/
 ├── train.py                                # Training script
 ├── test.py                                 # Testing/Evaluation script
 ├── model.py                                # Model definition
