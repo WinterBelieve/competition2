@@ -58,9 +58,9 @@ Traditional-Chinese-Handwriting-Dataset/
 **Installation Guide 安裝指南**
 
 
-1. **Clone the Repository**
+1. **Clone the Repository**  
 
-` git clone https://github.com/WinterBelieve/competition2.git `
+` git clone https://github.com/WinterBelieve/competition2.git `  
 
 ` cd competition2 `
 
