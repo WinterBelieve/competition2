@@ -121,7 +121,7 @@ competition2/
 
 - **train.py**: Script to train the CNN model. 訓練 CNN 模型的腳本
 - **evaluate.py**: Script to test the trained model. 測試訓練模型的腳本
-- **Traditional-Chinese-Handwriting-Dataset/**: Directory containing the dataset.
+- **Traditional-Chinese-Handwriting-Dataset/**: Directory containing the dataset. 包含資料集的目錄
 
 **Contact Information 聯絡資訊**
 
