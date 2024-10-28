@@ -112,6 +112,7 @@ To evaluate the model's performance:
 competition2/
 ├── train.py                                # Training script 訓練腳本
 ├── evaluate.py                             # Testing/Evaluation script 測試/評估腳本
+├── class_to_idx.txt                        # 這個是每個中文字類別的對應
 ├── Traditional-Chinese-Handwriting-Dataset/
 │   └── data/
 │       └── cleaned\_data(50\_50)/            # Dataset directory 資料集資料夾
