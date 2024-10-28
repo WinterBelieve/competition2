@@ -46,7 +46,7 @@ transform = transforms.Compose([
 # data loader
 data_dir = 'Traditional-Chinese-Handwriting-Dataset/data/cleaned_data(50_50)'
 dataset = datasets.ImageFolder(root=data_dir, transform=transform)
-# print(dataset.class_to_idx) 
+# print(dataset.class_to_idx) # class to index mapping
 
 def custom_collate_fn(batch):
     # filter out Nones
@@ -58,13 +58,14 @@ def custom_collate_fn(batch):
 test_dataset = torch.utils.data.Subset(dataset, range(len(dataset)-200,len(dataset)))
 test_loader = DataLoader(test_dataset, batch_size=128)
 classmap = json.loads(open('class_to_idx.txt').read())
+# print(classmap) # class to index mapping
 
 # model_path = '/home/jovyan/competition2/resnet_ChMNIST.pth'
-# model_path = 'handwrite_model.pth'
-if sys.argv[2] != 'training':
-    testds = SimpleDataset('newchinese', classmap,transform=transform)
-    test_loader = DataLoader(testds, batch_size=128, collate_fn=custom_collate_fn)
-model_path = sys.argv[1]
+model_path = '/home/jovyan/competition2/handwrite_model.pth'
+# if sys.argv[2] != 'training':
+#     testds = SimpleDataset('newchinese', classmap,transform=transform)
+#     test_loader = DataLoader(testds, batch_size=128, collate_fn=custom_collate_fn)
+# model_path = sys.argv[1]
 model = torch.jit.load(model_path).to(device)
 
 # Function to evaluate the model and identify misclassifications
@@ -93,9 +94,9 @@ def evaluate_model(model, loader):
     print(json.dumps({"total": total, "correct": correct, "accuracy": accuracy}))
 
     # Print misclassified examples
-    #print("Misclassified examples:")
-    #for label, pred in misclassified:
-    #    print(f"Actual: {label}, Predicted: {pred}")
+    print("Misclassified examples:")
+    for label, pred in misclassified:
+        print(f"Actual: {label}, Predicted: {pred}")
 
 # Evaluate the model
 evaluate_model(model, test_loader)
