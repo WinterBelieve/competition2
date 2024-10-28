@@ -1,11 +1,9 @@
 **Chinese Handwriting Recognition (Chinese OCR)中文手寫辨識**
 
 Welcome to the Chinese Handwriting Recognition competition!  
-
 歡迎來到中文手寫辨識競賽！  
 
-This project focuses on recognizing traditional Chinese handwritten characters using deep learning techniques.  
-
+This competition focuses on recognizing traditional Chinese handwritten characters using deep learning techniques.  
 此專案旨在使用深度學習技術來辨識繁體中文手寫。  
 
 **Table of Contents 目錄**
@@ -24,15 +22,14 @@ This project aims to build a convolutional neural network (CNN) model capable of
 中文手寫辨識是一項具有挑戰性的任務，因為它涉及大量的字符以及多變的書寫風格。  
 本競賽旨在建立一個卷積神經網絡（CNN）模型，能夠辨識從手寫圖片中提取出的 4,803 個繁體中文。  
 
-**Dataset Description**
-***Dataset Location***
+**Dataset Description 資料集描述**
 
 The dataset is available in this repository under the directory:  
 資料集已包含在本專案的以下路徑中：  
-
+```
 Traditional-Chinese-Handwriting-Dataset/data/cleaned\_data(50\_50)/
-
-**Dataset Structure**
+```
+**Dataset Structure 資料集結構**
 
 The dataset is organized into folders, each representing a single Chinese character. Each folder contains images of handwritten samples of that character.  
 資料集以資料夾方式組織，每個資料夾代表一個中文字，其中包含該字的手寫樣本圖片。  
