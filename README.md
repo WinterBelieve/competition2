@@ -60,10 +60,10 @@ Traditional-Chinese-Handwriting-Dataset/
 
 1. **Clone the Repository**  
 
-` git clone https://github.com/WinterBelieve/competition2.git `  
-
-` cd competition2 `
-
+```
+git clone https://github.com/WinterBelieve/competition2.git
+cd competition2
+```
 
 2. **Ensure Required Libraries Are Installed 確認已安裝所需的函式庫**
 
