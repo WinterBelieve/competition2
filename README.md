@@ -11,7 +11,7 @@ This competition focuses on recognizing traditional Chinese handwritten characte
 - [Competition Background](#Competition-background)
 - [Dataset Description](#dataset-description)
 - [Usage Instructions](#usage-instructions)
-- [Project Structure](#project-structure)
+- [Competition Structure](#competition-structure)
 - [Contact Information](#contact-information)
 
 **Competition Background 競賽背景**
