@@ -61,11 +61,11 @@ classmap = json.loads(open('class_to_idx.txt').read())
 # print(classmap) # class to index mapping
 
 # model_path = '/home/jovyan/competition2/resnet_ChMNIST.pth'
-# model_path = '/home/jovyan/competition2/handwrite_model.pth'
-if sys.argv[2] != 'training':
-     testds = SimpleDataset('newchinese', classmap,transform=transform)
-     test_loader = DataLoader(testds, batch_size=128, collate_fn=custom_collate_fn)
-model_path = sys.argv[1]
+model_path = '/home/jovyan/competition2/handwrite_model.pth'
+# if sys.argv[2] != 'training':
+#     testds = SimpleDataset('newchinese', classmap,transform=transform)
+#     test_loader = DataLoader(testds, batch_size=128, collate_fn=custom_collate_fn)
+# model_path = sys.argv[1]
 model = torch.jit.load(model_path).to(device)
 
 # Function to evaluate the model and identify misclassifications
