@@ -94,9 +94,9 @@ def evaluate_model(model, loader):
     print(json.dumps({"total": total, "correct": correct, "accuracy": accuracy}))
 
     # Print misclassified examples
-    print("Misclassified examples:")
-    for label, pred in misclassified:
-        print(f"Actual: {label}, Predicted: {pred}")
+    # print("Misclassified examples:")
+    # for label, pred in misclassified:
+    #     print(f"Actual: {label}, Predicted: {pred}")
 
 # Evaluate the model
 evaluate_model(model, test_loader)
